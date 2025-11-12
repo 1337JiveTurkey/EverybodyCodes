@@ -49,7 +49,7 @@ object Day3 extends Main {
 		}
 		for (i <- 1 to 100) {
 			for (cell <- grid.cells) {
-				if (!cell.onEdge) {
+				if (!cell.onEdge && cell.value == i) {
 					val matches = cell.neighbors.forall(_.value >= i)
 					if (matches) {
 						cell.value = i + 1

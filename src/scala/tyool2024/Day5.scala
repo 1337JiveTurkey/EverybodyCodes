@@ -47,7 +47,7 @@ object Day5 extends Main {
 			val number = round(numberColumns, i).toLong
 			maxFound = Math.max(number, maxFound)
 			// Yes this is the lazy way to do it
-		} while (i < 1_000_000_000)
+		} while (i < 1_000_000)
 		println(maxFound)
 	}
 

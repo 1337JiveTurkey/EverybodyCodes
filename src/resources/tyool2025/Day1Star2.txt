@@ -1,0 +1,3 @@
+Jorathpyr,Ardenparth,Rylarloris,Palthmyr,Iryndar,Varindrith,Brivpyxis,Oronaes,Orybel,Krynnilor,Rythzal,Hazendris,Zynagrath,Jarnixis,Drethaxar,Zalfeth,Xaralzyth,Eldenhal,Drelthyn,Kronalar
+
+L12,R19,L13,R14,L19,R11,L11,R15,L14,R9,L5,R10,L5,R7,L5,R19,L5,R17,L5,R18,L14,R8,L16,R18,L15,R15,L15,R10,L7

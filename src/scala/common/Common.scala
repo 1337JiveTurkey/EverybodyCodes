@@ -104,6 +104,13 @@ class Common(dirPrefix: String) {
 		retVal.result()
 	}
 
+	/**
+	 * Repeats a list forever.
+	 *
+	 * @param s The sequence to repeat
+	 * @tparam T The type of the elements of the sequence
+	 * @return An infinitely repeating list generated from the input sequence
+	 */
 	def repeatForever[T](s: Seq[T]): LazyList[T] = {
 		LazyList.continually(s.to(LazyList)).flatten
 	}
@@ -151,6 +158,11 @@ class Common(dirPrefix: String) {
 			retVal += remainder
 		}
 		retVal.result()
+	}
+
+	def lineToLabeledPair(line: String): (String, String) = {
+		val list = line.split(':')
+		(list(0), list(1))
 	}
 
 	def countCharacters(input: Seq[Char]): Map[Char, Int] = {

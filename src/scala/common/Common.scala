@@ -165,7 +165,7 @@ class Common(dirPrefix: String) {
 		(list(0), list(1))
 	}
 
-	def countCharacters(input: Seq[Char]): Map[Char, Int] = {
+	def countValues[B](input: Seq[B]): Map[B, Int] = {
 		input.groupBy(identity).view.mapValues(_.length).toMap
 	}
 

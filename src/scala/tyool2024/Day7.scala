@@ -27,18 +27,18 @@ object Day7 extends Main {
 		val lines = fileLines("Day7Star2.txt")
 		val racetrack = parseRacetrack(fileLines("Day7Star2Racetrack.txt"))
 		val labeledPairs = lines.map(lineToLabeledPair)
+		val length = racetrack.length * 10
+		val fullCourse = repeatForever(racetrack).take(length)
 		val totals = for ((key, line) <- labeledPairs) yield {
 			val planAdjustments = repeatForever(line.split(',').map(toPowerAdjustment))
-			val resultAdjustments = racetrack.zip(planAdjustments).map {
+			val resultAdjustments = fullCourse.zip(planAdjustments).map {
 				case (track, plan) => combineAdjustments(track, plan)
 			}
 			var power = 10
 			var total = 0
-			for (i <- 1 to 10) {
-				for (adjustment <- resultAdjustments) {
-					power = adjustment(power)
-					total += power
-				}
+			for (adjustment <- resultAdjustments) {
+				power = adjustment(power)
+				total += power
 			}
 			println(s"$key: $total")
 			(key, total)

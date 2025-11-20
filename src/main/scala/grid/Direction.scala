@@ -6,20 +6,19 @@ package grid
  * @param dx Change in the x value to move in this direction
  * @param dy Change in the y value to move in this direction
  */
-sealed abstract class Direction(ord: Int, val dx: Int, val dy: Int, name: String) {
+sealed abstract class Direction(ord: Int, val dx: Int, val dy: Int) {
 	val cardinal: Boolean = (dx & dy) == 0
 	val diagonal: Boolean = !cardinal
 	val horizontal: Boolean = dx != 0 && dy == 0
 	val vertical: Boolean = dx == 0 && dy != 0
 	val bitMask: Int = 1 << ord
 
-	override def toString: String = name
 	/**
 	 * Turn a relative bearing into an absolute direction.
 	 * @param b The bearing.
 	 * @return The direction that the bearing points in relative to this direction.
 	 */
-	def relative(b: Bearing): Direction = Direction((ord + b.dOrd) % 8)
+	def relative(b: Bearing): Direction = Direction.fromOrd((ord + b.dOrd) % 8)
 
 	/**
 	 * Turn a set of relative bearings into a set of absolute directions.
@@ -36,17 +35,17 @@ sealed abstract class Direction(ord: Int, val dx: Int, val dy: Int, name: String
 	def unary_~(): DirectionSet = ~DirectionSet(this)
 }
 
-case object North      extends Direction(0,  0, -1, "North")
-case object Northeast  extends Direction(1,  1, -1, "Northeast")
-case object East       extends Direction(2,  1,  0, "East")
-case object Southeast  extends Direction(3,  1,  1, "Southeast")
-case object South      extends Direction(4,  0,  1, "South")
-case object Southwest  extends Direction(5, -1,  1, "Southwest")
-case object West       extends Direction(6, -1,  0, "West")
-case object Northwest  extends Direction(7, -1, -1, "Northwest")
+case object North      extends Direction(0,  0, -1)
+case object Northeast  extends Direction(1,  1, -1)
+case object East       extends Direction(2,  1,  0)
+case object Southeast  extends Direction(3,  1,  1)
+case object South      extends Direction(4,  0,  1)
+case object Southwest  extends Direction(5, -1,  1)
+case object West       extends Direction(6, -1,  0)
+case object Northwest  extends Direction(7, -1, -1)
 
 object Direction {
-	def apply(ord: Int): Direction = ord match {
+	def fromOrd(ord: Int): Direction = ord match {
 		case 0 => North
 		case 1 => Northeast
 		case 2 => East

@@ -5,23 +5,21 @@ package grid
  *
  * @param dOrd The ordinal of the object, selected for easy math.
  */
-sealed abstract class Bearing(val dOrd: Int, name: String) {
+sealed abstract class Bearing(val dOrd: Int) {
 	val bitMask: Int = 1 << dOrd
-
-	override def toString: String = name
 }
 
-case object Fore       extends Bearing(0, "Fore")
-case object ForeRight  extends Bearing(1, "ForeRight")
-case object Right      extends Bearing(2, "Right")
-case object BackRight  extends Bearing(3, "BackRight")
-case object Back       extends Bearing(4, "Back")
-case object BackLeft   extends Bearing(5, "BackLeft")
-case object Left       extends Bearing(6, "Left")
-case object ForeLeft   extends Bearing(7, "ForeLeft")
+case object Fore       extends Bearing(0)
+case object ForeRight  extends Bearing(1)
+case object Right      extends Bearing(2)
+case object BackRight  extends Bearing(3)
+case object Back       extends Bearing(4)
+case object BackLeft   extends Bearing(5)
+case object Left       extends Bearing(6)
+case object ForeLeft   extends Bearing(7)
 
 object Bearing {
-	def apply(ord: Int): Bearing = ord match {
+	def fromOrd(ord: Int): Bearing = ord match {
 		case 0 => Fore
 		case 1 => ForeRight
 		case 2 => Right

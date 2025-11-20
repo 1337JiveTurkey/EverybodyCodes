@@ -1,7 +1,5 @@
 package tyool2025
 
-import scala.collection.mutable
-
 object Day1 extends Main {
 	def main(args: Array[String]): Unit = {
 		star3()

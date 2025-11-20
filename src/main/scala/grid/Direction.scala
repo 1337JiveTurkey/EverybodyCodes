@@ -8,28 +8,45 @@ import scala.language.implicitConversions
  * @param dx Change in the x value to move in this direction
  * @param dy Change in the y value to move in this direction
  */
-sealed abstract case class Direction(ord: Int, dx: Int, dy: Int) {
+sealed abstract case class Direction(ord: Int, dx: Int, dy: Int, name: String) {
 	val cardinal: Boolean = (dx & dy) == 0
 	val diagonal: Boolean = !cardinal
 	val horizontal: Boolean = dx != 0 && dy == 0
 	val vertical: Boolean = dx == 0 && dy != 0
 	val bitMask: Int = 1 << ord
 
+	override def toString(): String = name
+	/**
+	 * Turn a relative bearing into an absolute direction.
+	 * @param b The bearing.
+	 * @return The direction that the bearing points in relative to this direction.
+	 */
 	def relative(b: Bearing): Direction = Direction((ord + b.dOrd) % 8)
+
+	/**
+	 * Turn a set of relative bearings into a set of absolute directions.
+	 * @param bs The bearings relative to the current direction.
+	 * @return The absolute directions.
+	 */
+	def relative(bs: BearingSet): DirectionSet = {
+		val bits = bs.bearings & 0xff
+		// abcdefgh >R> 6
+		new DirectionSet(bits >> ord | (bits << (8 - ord) & 0xff))
+	}
 
 	def &(d: Direction): DirectionSet = DirectionSet(this) & d
 	def |(d: Direction): DirectionSet = DirectionSet(this) | d
 	def unary_~(): DirectionSet = ~DirectionSet(this)
 }
 
-object North      extends Direction(0,  0, -1)
-object Northeast  extends Direction(1,  1, -1)
-object East       extends Direction(2,  1,  0)
-object Southeast  extends Direction(3,  1,  1)
-object South      extends Direction(4,  0,  1)
-object Southwest  extends Direction(5, -1,  1)
-object West       extends Direction(6, -1,  0)
-object Northwest  extends Direction(7, -1, -1)
+object North      extends Direction(0,  0, -1, "North")
+object Northeast  extends Direction(1,  1, -1, "Northeast")
+object East       extends Direction(2,  1,  0, "East")
+object Southeast  extends Direction(3,  1,  1, "Southeast")
+object South      extends Direction(4,  0,  1, "South")
+object Southwest  extends Direction(5, -1,  1, "Southwest")
+object West       extends Direction(6, -1,  0, "West")
+object Northwest  extends Direction(7, -1, -1, "Northwest")
 
 object Direction {
 	def apply(ord: Int): Direction = ord match {
@@ -218,12 +235,12 @@ object ForeLeft extends Bearing(7)
 /**
  * Bearing set containing more than one Bearing in a compact representation.
  *
- * @param Bearings All the Bearing bit values or'd together
+ * @param bearings All the Bearing bit values or'd together
  */
-class BearingSet(val Bearings: Int) extends AnyVal {
-	def contains(d: Bearing): Boolean = (d != null) && (d.bitMask & Bearings) != 0
+class BearingSet(val bearings: Int) extends AnyVal {
+	def contains(d: Bearing): Boolean = (d != null) && (d.bitMask & bearings) != 0
 	def apply(d: Bearing): Boolean = contains(d)
-	def isEmpty: Boolean = Bearings == 0
+	def isEmpty: Boolean = bearings == 0
 
 	def foreach[U](f: Bearing => U): Unit = {
 		if (contains(Fore))       f(Fore)
@@ -242,9 +259,9 @@ class BearingSet(val Bearings: Int) extends AnyVal {
 		new BearingSet(ds)
 	}
 
-	def &(d: BearingSet): BearingSet = new BearingSet(Bearings & d.Bearings)
-	def |(d: BearingSet): BearingSet = new BearingSet(Bearings | d.Bearings)
-	def unary_~(): BearingSet = new BearingSet(~Bearings & BearingSet.All.Bearings)
+	def &(d: BearingSet): BearingSet = new BearingSet(bearings & d.bearings)
+	def |(d: BearingSet): BearingSet = new BearingSet(bearings | d.bearings)
+	def unary_~(): BearingSet = new BearingSet(~bearings & BearingSet.All.bearings)
 }
 
 object BearingSet {

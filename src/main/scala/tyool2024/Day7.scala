@@ -1,6 +1,6 @@
 package tyool2024
 
-import grid.{East, Grid, North, South, West}
+import grid._
 
 object Day7 extends Main {
 	def main(args: Array[String]): Unit = {
@@ -51,13 +51,26 @@ object Day7 extends Main {
 		val grid = Grid(lines)(identity)
 		val sb = IndexedSeq.newBuilder[Adjustment]
 		val start = grid.cell(0,0)
-		sb.addAll(for (cell <- start.ray(East)) yield toPowerAdjustment(String.valueOf(cell.value)))
-		val turnSouth = grid.cell(grid.width - 1, 0)
-		sb.addAll(for (cell <- turnSouth.ray(South)) yield toPowerAdjustment(String.valueOf(cell.value)))
-		val turnWest = grid.cell(grid.width - 1, grid.height - 1)
-		sb.addAll(for (cell <- turnWest.ray(West)) yield toPowerAdjustment(String.valueOf(cell.value)))
-		val turnNorth = grid.cell(0, grid.height - 1)
-		sb.addAll(for (cell <- turnNorth.ray(North)) yield toPowerAdjustment(String.valueOf(cell.value)))
+		// Start in a direction that's not looking to the south
+		var direction: Direction = North
+		var cell = start
+		// When we move forward these are the directions we can turn
+		val possibleForwards = BearingSet(Fore, Left, Right)
+		do {
+			var nextCell: Cell[Char] = null
+			var nextDirection: Direction = null
+			// Look at directions that are valid and could lead forward on the path
+			for (lookAt <- direction.relative(possibleForwards)) {
+				val lookedCell = cell.get(lookAt)
+				if (lookedCell.isDefined && lookedCell.get.value != ' ') {
+					nextCell = lookedCell.get
+					nextDirection = lookAt
+				}
+			}
+			cell = nextCell
+			direction = nextDirection
+			sb.addOne(toPowerAdjustment(String.valueOf(cell.value)))
+		} while (cell.value != 'S')
 		sb.result()
 	}
 

@@ -46,7 +46,6 @@ object Day7 extends Main {
 		println(totals.sortBy(_._2).map(_._1).reverse.mkString)
 	}
 
-
 	def parseRacetrack(lines: IndexedSeq[String]): Seq[Adjustment] = {
 		val grid = Grid(lines)(identity)
 		val sb = IndexedSeq.newBuilder[Adjustment]
@@ -71,7 +70,9 @@ object Day7 extends Main {
 			direction = nextDirection
 			sb.addOne(toPowerAdjustment(String.valueOf(cell.value)))
 		} while (cell.value != 'S')
-		sb.result()
+		val retVal = sb.result()
+		println(retVal)
+		retVal
 	}
 
 	def toPowerAdjustment(ch: String): Adjustment = {

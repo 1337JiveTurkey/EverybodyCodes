@@ -30,7 +30,6 @@ sealed abstract case class Direction(ord: Int, dx: Int, dy: Int, name: String) {
 	 */
 	def relative(bs: BearingSet): DirectionSet = {
 		val bits = bs.bearings & 0xff
-		// abcdefgh >R> 6
 		new DirectionSet(bits >> ord | (bits << (8 - ord) & 0xff))
 	}
 
@@ -185,6 +184,21 @@ class DirectionSet(val directions: Int) extends AnyVal with IterableOnce[Directi
 			oldSet.head
 		}
 	}
+
+	override def toString: String = {
+		var needComma = false
+		val sb = new StringBuilder("DirectionSet(")
+		for (direction <- DirectionSet.All) {
+			if (this.contains(direction)) {
+				if (needComma) {
+					sb.append(",")
+				}
+				sb.append(direction)
+				needComma = true
+			}
+		}
+		sb.append(")").result()
+	}
 }
 
 object DirectionSet {
@@ -219,28 +233,65 @@ object DirectionSet {
  *
  * @param dOrd The ordinal of the object, selected for easy math.
  */
-sealed abstract case class Bearing(dOrd: Int) {
+sealed abstract case class Bearing(dOrd: Int, name: String) {
 	val bitMask: Int = 1 << dOrd
 }
 
-object Fore extends Bearing(0)
-object ForeRight extends Bearing(1)
-object Right extends Bearing(2)
-object BackRight extends Bearing(3)
-object Back extends Bearing(4)
-object BackLeft extends Bearing(5)
-object Left extends Bearing(6)
-object ForeLeft extends Bearing(7)
+object Fore       extends Bearing(0, "Fore")
+object ForeRight  extends Bearing(1, "ForeRight")
+object Right      extends Bearing(2, "Right")
+object BackRight  extends Bearing(3, "BackRight")
+object Back       extends Bearing(4, "Back")
+object BackLeft   extends Bearing(5, "BackLeft")
+object Left       extends Bearing(6, "Left")
+object ForeLeft   extends Bearing(7, "ForeLeft")
+
+object Bearing {
+	def apply(ord: Int): Bearing = ord match {
+		case 0 => Fore
+		case 1 => ForeRight
+		case 2 => Right
+		case 3 => BackRight
+		case 4 => Back
+		case 5 => BackLeft
+		case 6 => Left
+		case 7 => ForeLeft
+		case other => throw new IndexOutOfBoundsException("Value = " + other)
+	}
+
+	def fromMask(mask: Int): Bearing = mask match {
+		case 1   => Fore
+		case 2   => ForeRight
+		case 4   => Right
+		case 8   => BackRight
+		case 16  => Back
+		case 32  => BackLeft
+		case 64  => Left
+		case 128 => ForeLeft
+		case other => throw new IndexOutOfBoundsException("Value = " + other)
+	}
+}
 
 /**
  * Bearing set containing more than one Bearing in a compact representation.
  *
  * @param bearings All the Bearing bit values or'd together
  */
-class BearingSet(val bearings: Int) extends AnyVal {
+class BearingSet(val bearings: Int) extends AnyVal with IterableOnce[Bearing] {
 	def contains(d: Bearing): Boolean = (d != null) && (d.bitMask & bearings) != 0
 	def apply(d: Bearing): Boolean = contains(d)
 	def isEmpty: Boolean = bearings == 0
+
+
+	def head: Bearing = Bearing.fromMask(Integer.highestOneBit(bearings))
+
+	def tail: BearingSet = {
+		if (isEmpty) {
+			this
+		} else {
+			new BearingSet(bearings & ~Integer.highestOneBit(bearings))
+		}
+	}
 
 	def foreach[U](f: Bearing => U): Unit = {
 		if (contains(Fore))       f(Fore)
@@ -262,6 +313,36 @@ class BearingSet(val bearings: Int) extends AnyVal {
 	def &(d: BearingSet): BearingSet = new BearingSet(bearings & d.bearings)
 	def |(d: BearingSet): BearingSet = new BearingSet(bearings | d.bearings)
 	def unary_~(): BearingSet = new BearingSet(~bearings & BearingSet.All.bearings)
+
+	override def iterator: Iterator[Bearing] = new Iterator[Bearing] {
+		var set: BearingSet = new BearingSet(bearings)
+		override def hasNext: Boolean = !set.isEmpty
+
+		override def next(): Bearing = {
+			val oldSet = set
+			if (set.isEmpty) {
+				throw new IllegalStateException("Empty iterator")
+			}
+			set = set.tail
+			oldSet.head
+		}
+	}
+
+	override def toString: String = {
+		var needComma = false
+		val sb = new StringBuilder("BearingSet(")
+		for (bearing <- BearingSet.All) {
+			if (this.contains(bearing)) {
+				if (needComma) {
+					sb.append(",")
+				}
+				sb.append(bearing)
+				needComma = true
+			}
+		}
+		sb.append(")").result()
+	}
+
 }
 
 object BearingSet {

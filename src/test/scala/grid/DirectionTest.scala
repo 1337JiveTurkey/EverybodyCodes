@@ -2,7 +2,7 @@ package grid
 
 import org.junit.{Assert, Test}
 
-class DirectionTest() {
+class DirectionTest {
 	@Test def relativeBearings(): Unit = {
 		Assert.assertEquals(South, North.relative(Back))
 		for (direction <- DirectionSet.All) {
@@ -24,8 +24,29 @@ class DirectionTest() {
 			Assert.assertEquals(DirectionSet.Cardinals, direction.relative(BearingSet.Diagonals))
 		}
 
-		val allButEast = DirectionSet(North, South, West)
-		val allButBack = BearingSet(Fore, Left, Right)
+	}
+
+	@Test def day7FailingCode(): Unit = {
+		val allButEast = DirectionSet.Cardinals - East
+		val allButBack = BearingSet.Cardinals - Back
 		Assert.assertEquals(allButEast, West.relative(allButBack))
 	}
+
+	@Test def day7FailingCodeExtension(): Unit = {
+		for (d <- DirectionSet.All) {
+			val allButD = DirectionSet.All - d
+			for (b <- BearingSet.All) {
+				val relativeD = d.relative(b)
+				val allButB = BearingSet.All - b
+				val allButRelativeD = DirectionSet.All - relativeD
+
+				if (allButRelativeD == d.relative(allButB)) {
+					println(s"Success for $d and $b")
+				} else {
+					println(s"Failure for $d and $b")
+				}
+			}
+		}
+	}
+
 }

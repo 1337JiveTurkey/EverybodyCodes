@@ -4,7 +4,7 @@ import grid._
 
 object Day7 extends Main {
 	def main(args: Array[String]): Unit = {
-		star2()
+		star3()
 	}
 
 	def star1(): Unit = {
@@ -30,20 +30,47 @@ object Day7 extends Main {
 		val length = racetrack.length * 10
 		val fullCourse = repeatForever(racetrack).take(length)
 		val totals = for ((key, line) <- labeledPairs) yield {
-			val planAdjustments = repeatForever(line.split(',').map(toPowerAdjustment))
-			val resultAdjustments = fullCourse.zip(planAdjustments).map {
-				case (track, plan) => combineAdjustments(track, plan)
-			}
-			var power = 10
-			var total = 0
-			for (adjustment <- resultAdjustments) {
-				power = adjustment(power)
-				total += power
-			}
+			val plan = repeatForever(line.split(',').map(toPowerAdjustment))
+			val total = evaluatePlan(plan, fullCourse)
 			println(s"$key: $total")
 			(key, total)
 		}
 		println(totals.sortBy(_._2).map(_._1).reverse.mkString)
+	}
+
+	def star3(): Unit = {
+		val (_, line) = lineToLabeledPair(fileLine("Day7Star3.txt"))
+		val rivalPlan = line.split(',').map(toPowerAdjustment)
+
+		val racetrack = parseRacetrack(fileLines("Day7Star3Racetrack.txt"))
+		val length = racetrack.length * 2024
+		val fullCourse = repeatForever(racetrack).take(length)
+
+		val rivalTotal = evaluatePlan(rivalPlan, fullCourse)
+
+		var winningPlans = 0
+		val plans = validPlans()
+		for (plan <- plans) {
+			val total = evaluatePlan(plan, fullCourse)
+			if (total > rivalTotal) {
+				winningPlans += 1
+			}
+		}
+		println(winningPlans)
+	}
+
+	def evaluatePlan(racerPlan: Seq[Adjustment], fullCourse: Iterable[Adjustment]): Long = {
+		val foreverPlan = repeatForever(racerPlan).take(fullCourse.size).toArray
+		val resultAdjustments = fullCourse.zip(foreverPlan).map {
+			case (track, plan) => combineAdjustments(track, plan)
+		}
+		var power = 10
+		var total: Long = 0
+		for (adjustment <- resultAdjustments) {
+			power = adjustment(power)
+			total += power
+		}
+		total
 	}
 
 	def parseRacetrack(lines: IndexedSeq[String]): Seq[Adjustment] = {
@@ -73,6 +100,13 @@ object Day7 extends Main {
 		val retVal = sb.result()
 		println(retVal)
 		retVal
+	}
+
+	def validPlans(): IndexedSeq[IndexedSeq[Adjustment]] = {
+		val permutations = "+++++===---".permutations.toSet.toIndexedSeq
+		for (permutation <- permutations) yield {
+			permutation.map(ch => toPowerAdjustment(ch.toString))
+		}
 	}
 
 	def toPowerAdjustment(ch: String): Adjustment = {

@@ -11,15 +11,15 @@ class BearingSet(val bearings: Int) extends AnyVal with IterableOnce[Bearing] {
 	def contains(d: Bearing): Boolean = (d != null) && (d.bitMask & bearings) != 0
 	def apply(d: Bearing): Boolean = contains(d)
 	def isEmpty: Boolean = bearings == 0
+	def size: Int = Integer.bitCount(bearings)
 
-
-	def head: Bearing = Bearing.fromMask(Integer.highestOneBit(bearings))
+	def head: Bearing = Bearing.fromMask(Integer.lowestOneBit(bearings))
 
 	def tail: BearingSet = {
 		if (isEmpty) {
 			this
 		} else {
-			new BearingSet(bearings & ~Integer.highestOneBit(bearings))
+			new BearingSet(bearings & ~Integer.lowestOneBit(bearings))
 		}
 	}
 
@@ -35,16 +35,15 @@ class BearingSet(val bearings: Int) extends AnyVal with IterableOnce[Bearing] {
 	}
 
 	def filter(f: Bearing => Boolean): BearingSet = {
-		var ds = 0
-		foreach(d => if(f(d)) ds |= d.bitMask)
-		new BearingSet(ds)
+		var bs = 0
+		foreach(b => if(f(b)) bs |= b.bitMask)
+		new BearingSet(bs)
 	}
 
-	def &(d: BearingSet): BearingSet = new BearingSet(bearings & d.bearings)
-	def |(d: BearingSet): BearingSet = new BearingSet(bearings | d.bearings)
+	def &(b: BearingSet): BearingSet = new BearingSet(bearings & b.bearings)
+	def |(b: BearingSet): BearingSet = new BearingSet(bearings | b.bearings)
 	def unary_~(): BearingSet = new BearingSet(~bearings & BearingSet.All.bearings)
-	def -(d: BearingSet): BearingSet = new BearingSet(bearings & ~d.bearings)
-
+	def -(b: BearingSet): BearingSet = new BearingSet(bearings & ~b.bearings)
 
 	override def iterator: Iterator[Bearing] = new Iterator[Bearing] {
 		var set: BearingSet = new BearingSet(bearings)
@@ -78,22 +77,22 @@ class BearingSet(val bearings: Int) extends AnyVal with IterableOnce[Bearing] {
 object BearingSet {
 	def apply(Bearings: Bearing*): BearingSet = {
 		var bearingSet = 0
-		for (d <- Bearings) {
-			bearingSet |= d.bitMask
+		for (b <- Bearings) {
+			bearingSet |= b.bitMask
 		}
 		new BearingSet(bearingSet)
 	}
-	implicit def apply(d1: Bearing): BearingSet = {
-		new BearingSet(d1.bitMask)
+	implicit def apply(b1: Bearing): BearingSet = {
+		new BearingSet(b1.bitMask)
 	}
-	def apply(d1: Bearing, d2: Bearing): BearingSet = {
-		new BearingSet(d1.bitMask | d2.bitMask)
+	def apply(b1: Bearing, b2: Bearing): BearingSet = {
+		new BearingSet(b1.bitMask | b2.bitMask)
 	}
-	def apply(d1: Bearing, d2: Bearing, d3: Bearing): BearingSet = {
-		new BearingSet(d1.bitMask | d2.bitMask | d3.bitMask)
+	def apply(b1: Bearing, b2: Bearing, b3: Bearing): BearingSet = {
+		new BearingSet(b1.bitMask | b2.bitMask | b3.bitMask)
 	}
-	def apply(d1: Bearing, d2: Bearing, d3: Bearing, d4: Bearing): BearingSet = {
-		new BearingSet(d1.bitMask | d2.bitMask | d3.bitMask | d4.bitMask)
+	def apply(b1: Bearing, b2: Bearing, b3: Bearing, b4: Bearing): BearingSet = {
+		new BearingSet(b1.bitMask | b2.bitMask | b3.bitMask | b4.bitMask)
 	}
 
 	val All: BearingSet = BearingSet(Fore, ForeRight, Right, BackRight, Back, BackLeft, Left, ForeLeft)

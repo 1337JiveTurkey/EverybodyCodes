@@ -14,13 +14,13 @@ class DirectionSet(val directions: Int) extends AnyVal with IterableOnce[Directi
 	def isEmpty: Boolean = directions == 0
 	def size: Int = Integer.bitCount(directions)
 
-	def head: Direction = Direction.fromMask(Integer.highestOneBit(directions))
+	def head: Direction = Direction.fromMask(Integer.lowestOneBit(directions))
 
 	def tail: DirectionSet = {
 		if (isEmpty) {
 			this
 		} else {
-			new DirectionSet(directions & ~Integer.highestOneBit(directions))
+			new DirectionSet(directions & ~Integer.lowestOneBit(directions))
 		}
 	}
 

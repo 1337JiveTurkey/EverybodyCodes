@@ -6,11 +6,20 @@ import org.junit.jupiter.params.provider.{Arguments, MethodSource}
 
 
 class DirectionTest {
-	@Test def relativeBearings(): Unit = {
-		Assertions.assertEquals(South, North.relative(Back))
-		for (direction <- DirectionSet.All) {
-			Assertions.assertEquals(direction, direction.relative(Fore))
-		}
+	@ParameterizedTest
+	@MethodSource(Array("allDirections"))
+	def relativeBearingIdentities(d: Direction): Unit = {
+		Assertions.assertEquals(d, d.relative(Fore))
+		Assertions.assertEquals(d, d.relative(Back).relative(Back))
+		Assertions.assertEquals(d, d.relative(Left).relative(Right))
+		Assertions.assertEquals(d, d.relative(Right).relative(Left))
+	}
+
+	@ParameterizedTest
+	@MethodSource(Array("allDirections"))
+	def relativeBearingSetIdentities(d: Direction): Unit = {
+		val original = DirectionSet(d)
+		Assertions.assertEquals(original, d.relative(BearingSet(Fore)))
 	}
 
 	@Test def relativeBearingSets(): Unit = {
@@ -26,7 +35,6 @@ class DirectionTest {
 		for (direction <- DirectionSet.Diagonals) {
 			Assertions.assertEquals(DirectionSet.Cardinals, direction.relative(BearingSet.Diagonals))
 		}
-
 	}
 
 	@Test def day7FailingCode(): Unit = {
@@ -35,9 +43,8 @@ class DirectionTest {
 		Assertions.assertEquals(allButEast, West.relative(allButBack))
 	}
 
-
 	@ParameterizedTest
-	@MethodSource(Array("directionBearingCombinations"))
+	@MethodSource(Array("allDirectionBearingCombinations"))
 	def day7FailingCodeExtension(d: Direction, b: Bearing): Unit = {
 		val relativeD = d.relative(b)
 		val allButB = BearingSet.All - b
@@ -48,7 +55,23 @@ class DirectionTest {
 }
 
 object DirectionTest {
-	def directionBearingCombinations(): java.util.List[Arguments] = {
+	def allDirections(): java.util.List[Arguments] = {
+		val retVal = new java.util.ArrayList[Arguments]
+		for (d <- DirectionSet.All) {
+			retVal.add(Arguments.of(d))
+		}
+		retVal
+	}
+
+	def allBearings(): java.util.List[Arguments] = {
+		val retVal = new java.util.ArrayList[Arguments]
+		for (b <- BearingSet.All) {
+			retVal.add(Arguments.of(b))
+		}
+		retVal
+	}
+
+	def allDirectionBearingCombinations(): java.util.List[Arguments] = {
 		val retVal = new java.util.ArrayList[Arguments]
 		for (d <- DirectionSet.All) {
 			for (b <- BearingSet.All) {

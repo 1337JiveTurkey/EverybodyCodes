@@ -27,7 +27,7 @@ sealed abstract class Direction(ord: Int, val dx: Int, val dy: Int) {
 	 */
 	def relative(bs: BearingSet): DirectionSet = {
 		val bits = bs.bearings & 0xff
-		new DirectionSet((bits >>> ord | (bits << (8 - ord))) & 0xff)
+		new DirectionSet((bits << ord | (bits >>> (8 - ord))) & 0xff)
 	}
 
 	def &(d: Direction): DirectionSet = DirectionSet(this) & d

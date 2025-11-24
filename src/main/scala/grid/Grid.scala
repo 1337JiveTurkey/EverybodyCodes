@@ -75,6 +75,22 @@ class Grid[T: ClassTag](val width: Int, val height: Int, val edges: EdgeBehavior
 	}
 
 	/**
+	 * Generates a subgrid from arbitrary set of x and y indices.
+	 * @param fromXIndices The x indices to turn into the subgrid.
+	 * @param fromYIndices The y indices to turn into the subgrid.
+	 * @return The subgrid containing the points from the indices.
+	 */
+	def subGrid(fromXIndices: Iterable[Int], fromYIndices: Iterable[Int]): Grid[T] = {
+		val xSize = fromXIndices.size
+		val ySize = fromYIndices.size
+		val retVal = new Grid[T](fromXIndices.size, fromYIndices.size)
+		for ((fromX, toX) <- fromXIndices.zipWithIndex; (fromY, toY) <- fromYIndices.zipWithIndex) {
+			retVal(toX, toY) = apply(fromX, fromY)
+		}
+		retVal
+	}
+
+	/**
 	 * A container for cell values that includes its coordinates, ability to see
 	 * its neighbors and other common extensions.
 	 *

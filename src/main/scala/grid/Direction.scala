@@ -1,12 +1,14 @@
 package grid
 
+import scala.language.implicitConversions
+
 /**
  * Directions as a case class
  *
  * @param dx Change in the x value to move in this direction
  * @param dy Change in the y value to move in this direction
  */
-sealed abstract class Direction(ord: Int, val dx: Int, val dy: Int) {
+sealed abstract class Direction(ord: Int, val dx: Int, val dy: Int, val arrow: Char) {
 	val cardinal: Boolean = (dx & dy) == 0
 	val diagonal: Boolean = !cardinal
 	val horizontal: Boolean = dx != 0 && dy == 0
@@ -33,16 +35,21 @@ sealed abstract class Direction(ord: Int, val dx: Int, val dy: Int) {
 	def &(d: Direction): DirectionSet = DirectionSet(this) & d
 	def |(d: Direction): DirectionSet = DirectionSet(this) | d
 	def unary_~(): DirectionSet = ~DirectionSet(this)
+
+	/**
+	 * @return A single character representation of the direction as an arrow.
+	 */
+	implicit def toChar: Char = arrow
 }
 
-case object North      extends Direction(0,  0, -1)
-case object Northeast  extends Direction(1,  1, -1)
-case object East       extends Direction(2,  1,  0)
-case object Southeast  extends Direction(3,  1,  1)
-case object South      extends Direction(4,  0,  1)
-case object Southwest  extends Direction(5, -1,  1)
-case object West       extends Direction(6, -1,  0)
-case object Northwest  extends Direction(7, -1, -1)
+case object North      extends Direction(0,  0, -1, '\u2191')
+case object Northeast  extends Direction(1,  1, -1, '\u2197')
+case object East       extends Direction(2,  1,  0, '\u2192')
+case object Southeast  extends Direction(3,  1,  1, '\u2198')
+case object South      extends Direction(4,  0,  1, '\u2193')
+case object Southwest  extends Direction(5, -1,  1, '\u2199')
+case object West       extends Direction(6, -1,  0, '\u2190')
+case object Northwest  extends Direction(7, -1, -1, '\u2196')
 
 object Direction {
 	def fromOrd(ord: Int): Direction = ord match {

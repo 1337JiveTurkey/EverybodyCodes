@@ -1,8 +1,12 @@
 package tyool2024
 
+import common.Counts
+
+import java.util.concurrent.CountDownLatch
+
 object Day11 extends Main {
 	def main (args: Array[String]): Unit = {
-		star2()
+		star3()
 	}
 
 	def star1(): Unit = {
@@ -31,6 +35,34 @@ object Day11 extends Main {
 		println(generation.length)
 	}
 
+	def star3(): Unit = {
+		val lines = fileLines("Day11Star3.txt").map(lineToLabeledPair)
+		val births = Map.from(for ((label, sequenceText) <- lines) yield {
+			(label, sequenceText.split(','))
+		})
+		val progenitors = births.keys
+
+		val countsByProgenitor = for (progenitor <- progenitors) yield {
+			var currentGeneration = new Counts[String]
+			currentGeneration.addTo(progenitor, 1)
+			for (i <- 1 to 20) {
+				val nextGeneration = new Counts[String]
+				for ((breed, currentCount) <- currentGeneration) {
+					for (childBreed <- births(breed)) {
+						nextGeneration.addTo(childBreed, currentCount)
+					}
+				}
+				currentGeneration = nextGeneration
+			}
+			(progenitor, currentGeneration.sum)
+		}
+		for ((progenitor, count) <- countsByProgenitor) {
+			println(s"$progenitor = $count")
+		}
+		val (maxLabel, max) = countsByProgenitor.maxBy(_._2)
+		val (minLabel, min) = countsByProgenitor.minBy(_._2)
+		println(max - min)
+	}
 
 	def calculateDay(generation: String, births: Map[Char, String]): String = {
 		val sb = new StringBuilder()
